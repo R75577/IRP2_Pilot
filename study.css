@@ -1,0 +1,22 @@
+html, body { margin: 0; min-height: 100%; background: #808080; color: #161616; }
+.jspsych-content { width: 100%; max-width: 1000px; box-sizing: border-box; padding: 24px; }
+.page { background: white; padding: clamp(16px, 3vw, 32px); border-radius: 6px; line-height: 1.6; }
+.consent-copy, .demographics { text-align: left; }
+.consent-copy p { margin: 0 0 18px; }
+#jspsych-survey-html-form { background: white; padding: 24px; border-radius: 6px; }
+fieldset { border: 1px solid #aaa; margin: 20px 0; padding: 14px; }
+legend { font-weight: bold; }
+.option { display: block; padding: 7px; cursor: pointer; }
+input[type=radio], input[type=checkbox] { margin-right: 10px; }
+body.rating-mode .jspsych-content { max-width: none; padding: 8px 16px; }
+.rating { height: calc(100svh - 16px); display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.image-wrap { flex: 1; min-height: 0; width: 100%; display: flex; justify-content: center; }
+.stimulus-image { height: 100%; width: 100%; object-fit: contain; }
+.rating-panel { flex: 0 0 auto; width: min(850px, 100%); padding-bottom: 8px; }
+.rating-panel h2 { font-size: clamp(18px, 2.8vh, 26px); margin: 0 0 10px; }
+.scale { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.scale span { font-size: 22px; font-weight: bold; }
+.scale small { display: block; font-size: 14px; font-weight: normal; line-height: 1.2; }
+.rating-panel p { margin: 8px 0 0; }
+body.iti-mode .jspsych-content { padding: 0; }
+.error { color: #9c1515; }

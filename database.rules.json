@@ -1,0 +1,155 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "responses": {
+      "$uid": {
+        "$session": {
+          ".validate": "newData.hasChildren([\"client_version\", \"session_id\", \"started_at\", \"completed_at\", \"saved_at\", \"consent\", \"demographics\", \"recruitment\", \"block_order\", \"trial_count\", \"trials\"])",
+          "client_version": {
+            ".validate": "newData.val() == \"attractiveness-v5\""
+          },
+          "session_id": {
+            ".validate": "newData.isString() && newData.val() == $session"
+          },
+          "started_at": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1e+16"
+          },
+          "completed_at": {
+            ".validate": "newData.isNumber() && newData.val() >= newData.parent().child('started_at').val()"
+          },
+          "saved_at": {
+            ".validate": "newData.isNumber() && newData.val() == now"
+          },
+          "consent": {
+            ".validate": "newData.hasChildren([\"agreed\", \"version\", \"agreed_at\", \"rt_ms\"])",
+            "agreed": {
+              ".validate": "newData.val() == true"
+            },
+            "version": {
+              ".validate": "newData.val() == \"2026-10-13-v3\""
+            },
+            "agreed_at": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1e+16"
+            },
+            "rt_ms": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1e+16"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "demographics": {
+            ".validate": "newData.hasChildren([\"age\", \"gender\", \"ethnicity\", \"area_of_study\", \"education\", \"rt_ms\"])",
+            "age": {
+              ".validate": "newData.val() == \"18-21\" || newData.val() == \"22-30\" || newData.val() == \"31-40\" || newData.val() == \"41-60\" || newData.val() == \"60+\""
+            },
+            "gender": {
+              ".validate": "newData.val() == \"Male\" || newData.val() == \"Female\""
+            },
+            "ethnicity": {
+              ".validate": "newData.val() == \"European\" || newData.val() == \"Middle Eastern\" || newData.val() == \"Black, African, or Caribbean\" || newData.val() == \"Chinese\" || newData.val() == \"Indian\" || newData.val() == \"Indigenous\""
+            },
+            "area_of_study": {
+              ".validate": "newData.val() == \"STEM\" || newData.val() == \"Social Sciences\" || newData.val() == \"Humanities\" || newData.val() == \"Other\""
+            },
+            "education": {
+              ".validate": "newData.val() == \"High school diploma\" || newData.val() == \"Attending post-secondary\" || newData.val() == \"Post-secondary degree\" || newData.val() == \"Graduate degree\" || newData.val() == \"Prefer not to say\""
+            },
+            "rt_ms": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1e+16"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "recruitment": {
+            ".validate": "newData.hasChildren([\"cloudresearch_id\", \"pid\", \"workerId\", \"PROLIFIC_PID\", \"participantId\", \"assignmentId\", \"projectId\"])",
+            "pid": {
+              ".validate": "newData.isString() && newData.val().length <= 512"
+            },
+            "workerId": {
+              ".validate": "newData.isString() && newData.val().length <= 512"
+            },
+            "PROLIFIC_PID": {
+              ".validate": "newData.isString() && newData.val().length <= 512"
+            },
+            "participantId": {
+              ".validate": "newData.isString() && newData.val().length <= 512"
+            },
+            "assignmentId": {
+              ".validate": "newData.isString() && newData.val().length <= 512"
+            },
+            "projectId": {
+              ".validate": "newData.isString() && newData.val().length <= 512"
+            },
+            "$other": {
+              ".validate": false
+            },
+            "cloudresearch_id": {
+              ".validate": "newData.isString() && newData.val().length <= 128 && newData.val().matches(/.*\\S.*/)"
+            }
+          },
+          "block_order": {
+            ".validate": "newData.hasChildren(['0','1']) && newData.child('0').val() != newData.child('1').val()",
+            "0": {
+              ".validate": "newData.val() == \"Male\" || newData.val() == \"Female\""
+            },
+            "1": {
+              ".validate": "newData.val() == \"Male\" || newData.val() == \"Female\""
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "trial_count": {
+            ".validate": "newData.val() == 165"
+          },
+          "trials": {
+            ".validate": "newData.hasChildren([\"001\", \"002\", \"003\", \"004\", \"005\", \"006\", \"007\", \"008\", \"009\", \"010\", \"011\", \"012\", \"013\", \"014\", \"015\", \"016\", \"017\", \"018\", \"019\", \"020\", \"021\", \"022\", \"023\", \"024\", \"025\", \"026\", \"027\", \"028\", \"029\", \"030\", \"031\", \"032\", \"033\", \"034\", \"035\", \"036\", \"037\", \"038\", \"039\", \"040\", \"041\", \"042\", \"043\", \"044\", \"045\", \"046\", \"047\", \"048\", \"049\", \"050\", \"051\", \"052\", \"053\", \"054\", \"055\", \"056\", \"057\", \"058\", \"059\", \"060\", \"061\", \"062\", \"063\", \"064\", \"065\", \"066\", \"067\", \"068\", \"069\", \"070\", \"071\", \"072\", \"073\", \"074\", \"075\", \"076\", \"077\", \"078\", \"079\", \"080\", \"081\", \"082\", \"083\", \"084\", \"085\", \"086\", \"087\", \"088\", \"089\", \"090\", \"091\", \"092\", \"093\", \"094\", \"095\", \"096\", \"097\", \"098\", \"099\", \"100\", \"101\", \"102\", \"103\", \"104\", \"105\", \"106\", \"107\", \"108\", \"109\", \"110\", \"111\", \"112\", \"113\", \"114\", \"115\", \"116\", \"117\", \"118\", \"119\", \"120\", \"121\", \"122\", \"123\", \"124\", \"125\", \"126\", \"127\", \"128\", \"129\", \"130\", \"131\", \"132\", \"133\", \"134\", \"135\", \"136\", \"137\", \"138\", \"139\", \"140\", \"141\", \"142\", \"143\", \"144\", \"145\", \"146\", \"147\", \"148\", \"149\", \"150\", \"151\", \"152\", \"153\", \"154\", \"155\", \"156\", \"157\", \"158\", \"159\", \"160\", \"161\", \"162\", \"163\", \"164\", \"165\"])",
+            "$trial": {
+              ".validate": "newData.hasChildren([\"trial_number\", \"block\", \"block_index\", \"within_block_index\", \"image\", \"filename\", \"image_category\", \"rating\", \"response_key\", \"rt_ms\"]) && ((newData.child('block_index').val() == 1 && newData.child('block').val() == newData.parent().parent().child('block_order/0').val() && newData.child('trial_number').val() == newData.child('within_block_index').val()) || (newData.child('block_index').val() == 2 && newData.child('block').val() == newData.parent().parent().child('block_order/1').val() && ((newData.child('block').val() == 'Male' && newData.child('trial_number').val() == 84 + newData.child('within_block_index').val()) || (newData.child('block').val() == 'Female' && newData.child('trial_number').val() == 81 + newData.child('within_block_index').val())))) && $trial.matches(/^(00[1-9]|0[1-9][0-9]|1[0-5][0-9]|16[0-5])$/)",
+              "trial_number": {
+                ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 165 && newData.val() % 1 == 0 && $trial == (newData.val() < 10 ? '00' + newData.val() : (newData.val() < 100 ? '0' + newData.val() : '' + newData.val()))"
+              },
+              "block": {
+                ".validate": "newData.val() == \"Male\" || newData.val() == \"Female\""
+              },
+              "block_index": {
+                ".validate": "newData.val() == 1 || newData.val() == 2"
+              },
+              "within_block_index": {
+                ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() % 1 == 0 && ((newData.parent().child('block').val() == 'Male' && newData.val() <= 81) || (newData.parent().child('block').val() == 'Female' && newData.val() <= 84))"
+              },
+              "image": {
+                ".validate": "newData.val() == 'all_images/' + newData.parent().child('filename').val()"
+              },
+              "filename": {
+                ".validate": "newData.isString() && ((newData.parent().child('block').val() == 'Male' && newData.val().matches(/^M_.*$/)) || (newData.parent().child('block').val() == 'Female' && newData.val().matches(/^F_.*$/))) && newData.val().matches(/^(F_At_1\\.jpeg|F_At_10\\.jpeg|F_At_11\\.jpeg|F_At_12\\.png|F_At_13\\.jpeg|F_At_14\\.jpeg|F_At_15\\.jpeg|F_At_16\\.png|F_At_17\\.jpeg|F_At_18jpeg\\.jpeg|F_At_19\\.jpeg|F_At_2\\.jpeg|F_At_20\\.jpeg|F_At_21\\.jpeg|F_At_22\\.jpeg|F_At_23\\.jpeg|F_At_24\\.jpeg|F_At_25\\.jpeg|F_At_26\\.jpeg|F_At_27\\.jpeg|F_At_28\\.jpeg|F_At_29\\.jpeg|F_At_3\\.jpeg|F_At_30\\.jpeg|F_At_31\\.jpeg|F_At_32\\.jpeg|F_At_33\\.jpeg|F_At_34\\.jpeg|F_At_35\\.jpeg|F_At_36\\.jpeg|F_At_37\\.jpeg|F_At_38\\.jpeg|F_At_39\\.jpeg|F_At_4\\.jpeg|F_At_40\\.png|F_At_41\\.png|F_At_42\\.png|F_At_43\\.png|F_At_44\\.jpeg|F_At_5\\.jpeg|F_At_6\\.jpeg|F_At_7\\.png|F_At_8\\.jpeg|F_At_9\\.jpeg|F_Un_1\\.jpg|F_Un_10\\+\\.jpg|F_Un_11\\.jpg|F_Un_12\\.jpg|F_Un_13\\.jpg|F_Un_14\\.jpg|F_Un_15\\.jpg|F_Un_16\\.jpg|F_Un_17\\.jpg|F_Un_18\\+\\.jpg|F_Un_19\\.jpg|F_Un_2\\+\\.jpg|F_Un_20\\.jpg|F_Un_21\\+\\.jpg|F_Un_22\\.jpg|F_Un_23\\.jpg|F_Un_24\\+\\.jpg|F_Un_25\\.jpg|F_Un_26\\.jpg|F_Un_27\\.jpg|F_Un_28\\.jpg|F_Un_29\\+\\.jpg|F_Un_3\\.jpg|F_Un_30\\.jpg|F_Un_31\\.jpg|F_Un_32\\.jpg|F_Un_33\\.jpg|F_Un_34\\.jpg|F_Un_35\\.jpg|F_Un_36\\.jpg|F_Un_37\\.jpg|F_Un_38\\.jpg|F_Un_39\\.jpg|F_Un_4\\.jpg|F_Un_40\\.jpg|F_Un_5\\.jpg|F_Un_6\\.jpg|F_Un_7\\.jpg|F_Un_8\\.jpg|F_Un_9\\.jpg|M_At_1\\.jpeg|M_At_10\\.jpeg|M_At_11\\.jpeg|M_At_12\\.jpeg|M_At_13\\.jpeg|M_At_14\\.jpeg|M_At_15\\.jpeg|M_At_16\\.jpeg|M_At_17\\.jpeg|M_At_18\\.jpeg|M_At_19\\.jpeg|M_At_2\\.jpeg|M_At_20\\.jpeg|M_At_21\\.jpeg|M_At_22\\.jpeg|M_At_23\\.jpeg|M_At_24\\.jpeg|M_At_25\\.png|M_At_26\\.jpeg|M_At_27\\.jpeg|M_At_28\\.jpeg|M_At_29\\.jpeg|M_At_3\\.png|M_At_30\\.jpeg|M_At_31\\.jpeg|M_At_32\\.png|M_At_33\\.jpeg|M_At_34\\.jpeg|M_At_35\\.jpeg|M_At_36\\.jpeg|M_At_37\\.png|M_At_38\\.png|M_At_39\\.jpeg|M_At_4\\.png|M_At_40\\.jpeg|M_At_41\\.jpeg|M_At_5\\.jpeg|M_At_6\\.jpeg|M_At_7\\.png|M_At_8\\.png|M_At_9\\.jpeg|M_Un_1\\.jpg|M_Un_10\\.jpg|M_Un_11\\.jpg|M_Un_12\\.jpg|M_Un_13\\.jpg|M_Un_14\\.jpg|M_Un_15\\.jpg|M_Un_16\\.jpg|M_Un_17\\.jpg|M_Un_18\\.jpg|M_Un_19\\.jpg|M_Un_2\\.jpg|M_Un_20\\.jpg|M_Un_21\\.jpg|M_Un_22\\.jpg|M_Un_23\\.jpg|M_Un_24\\.jpg|M_Un_25\\.jpg|M_Un_26\\.jpg|M_Un_27\\.jpg|M_Un_28\\.jpg|M_Un_29\\.jpg|M_Un_3\\.jpg|M_Un_30\\.jpg|M_Un_31\\.jpg|M_Un_32\\.jpg|M_Un_33\\.jpg|M_Un_34\\.jpg|M_Un_35\\.jpg|M_Un_36\\.jpg|M_Un_37\\.jpg|M_Un_38\\.jpg|M_Un_39\\.jpg|M_Un_4\\.jpg|M_Un_40\\.jpg|M_Un_5\\.jpg|M_Un_6\\.jpg|M_Un_7\\.jpg|M_Un_8\\.jpg|M_Un_9\\.jpg)$/)"
+              },
+              "image_category": {
+                ".validate": "(newData.val() == 'At' && newData.parent().child('filename').val().matches(/^[MF]_At_.*$/)) || (newData.val() == 'Un' && newData.parent().child('filename').val().matches(/^[MF]_Un_.*$/))"
+              },
+              "rating": {
+                ".validate": "newData.val() == 1 || newData.val() == 2 || newData.val() == 3 || newData.val() == 4 || newData.val() == 5 || newData.val() == 6 || newData.val() == 7"
+              },
+              "response_key": {
+                ".validate": "newData.isString() && newData.val() == '' + newData.parent().child('rating').val()"
+              },
+              "rt_ms": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1e+16"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          },
+          "$other": {
+            ".validate": false
+          },
+          ".write": "auth != null && auth.uid == $uid && newData.exists()"
+        }
+      }
+    }
+  }
+}
