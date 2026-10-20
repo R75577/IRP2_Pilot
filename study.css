@@ -20,3 +20,10 @@ body.rating-mode .jspsych-content { max-width: none; padding: 8px 16px; }
 .rating-panel p { margin: 8px 0 0; }
 body.iti-mode .jspsych-content { padding: 0; }
 .error { color: #9c1515; }
+
+.rating-panel h2.classification-question { font-size: clamp(16px, 2.2vh, 20px); }
+.rating-panel .classification-keys { font-size: clamp(20px, 3vh, 28px); line-height: 1.4; }
+.classification-keys strong { display: inline-block; background: #fff; border: 2px solid #161616; border-radius: 5px; padding: 0 8px; font-weight: 800; }
+
+.study-instructions { font-size: 16pt; }
+.study-instructions p { font-size: inherit; }

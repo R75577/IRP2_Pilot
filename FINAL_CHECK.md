@@ -1,3 +1,38 @@
+# Renamed image update — October 20, 2026
+
+Five happy image filenames changed from F_Hp_37/38/39/40+/41+ to M_Hp_37/38/39/40+/41+. The manifest and Firebase filename allowlist now match the current folder. Counts are 82 male (41 An, 36 Nu, 5 Hp) and 84 female (44 An, 35 Nu, 5 Hp), 166 total. Firebase block limits and second-block trial offsets were updated. Manifest cache version updated.
+
+Full local Chrome tests passed in both block orders, loading all images, completing four practices and 166 main trials, and validating the mocked saved payload against local rule expressions. No live data was uploaded. Publish the changed manifest, index.html, database.rules.json, and renamed image files together.
+
+---
+
+# Keyboard and instruction update — October 20, 2026
+
+Instructions now use the requested wording and bold B/N/M. Classification accepts B for angry, N for neutral, M for happy (case insensitive; saved as lowercase). The question is now “Angry, neutral or happy?” in a smaller font. The larger response prompt uses bold uppercase key badges. Firebase validation uses b/n/m. Cache versions updated for experiment.js and study.css.
+
+Validation: full local Chrome test passed at 1024×681 in Female → Male order, covering four practice trials, all 166 main trials, rejection of old a/h keys, emotion-dependent rating questions, viewport fit, and mocked save/retry with local database rule validation. No live responses were uploaded. Publish updated database.rules.json alongside the changed site files.
+
+---
+
+# Emotion trial update — October 16, 2026
+
+Current version: `emotion-v6`. This update supersedes the earlier attractiveness-study checks below.
+
+- Each face first asks “Is this face neutral, angry or happy?” Only a/n/h accepts a classification.
+- The same face then asks “How angry/neutral/happy does the face appear?” according to the participant’s choice, with keys 1–7 and endpoints Not at all / Very.
+- Four distinct randomly sampled practice images appear after instructions and fullscreen/preloading, before the main blocks. Practice is labeled and excluded from the submitted study data. Practice images remain in the full main image set.
+- Current exact filenames: 166 images, 77 male and 89 female; categories An, Nu, Hp. Manifest and Firebase filename allowlist regenerated; counts, slots and block offsets updated.
+- Main trial records include selected_emotion, classification_key, classification_rt_ms, rating, response_key and rt_ms.
+- Consent, demographics, block randomization, one-second blank gray intervals, explicit submission, retry behavior and completion link are retained.
+
+Validation: full local headless Chrome runs passed in Male → Female and Female → Male order. All four practices and all 166 main trials were answered through keyboard events. Checks covered rejected keys, all three question variants, image loading, viewport fit, practice exclusion, main-image uniqueness, intervals, no upload before submission, ID validation, simulated save failure/retry, complete payload acceptance and malformed payload rejection by local rule expressions. Firebase was mocked; no real responses were uploaded. Local rule-expression checks are not Firebase emulator or deployed-rule verification.
+
+Deployment: publish the changed site files and database.rules.json together. Hosting and Firebase rules have not been deployed by this update.
+
+---
+
+## Earlier check record (superseded)
+
 # Final study check — 12 October 2026
 
 **Historical check of the pre-ID version: PASS after repairs. Live publication readiness remains unverified.**
@@ -50,7 +85,7 @@ Rules deny client reads and deletion, restrict writes to the authenticated user'
 
 ## CloudResearch Connect
 
-Completion URL: `https://connect.cloudresearch.com/participant/project/04018061B0/complete`.
+Completion URL: `https://connect.cloudresearch.com/participant/project/1EC415FF2C/complete`.
 
 The experiment captures `participantId`, `assignmentId`, and `projectId` from the incoming URL, plus optional `pid`, `workerId`, and `PROLIFIC_PID`. Missing values remain empty strings. Configure the Connect launch link to supply the IDs; collection is not mandatory in the code.
 

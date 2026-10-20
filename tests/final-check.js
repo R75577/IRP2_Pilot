@@ -21,8 +21,25 @@
     form.requestSubmit(); await wait(20);
     document.querySelector('#jspsych-instructions-next').click(); await wait(20);
     document.querySelector('#jspsych-fullscreen-btn').click();
-    await until(() => document.querySelector('#jspsych-instructions-next'));
-    assert(true, 'All 165 images preloaded');
+    await until(() => document.querySelector('.rating'));
+    assert(true, 'All images preloaded');
+    const practiceSeen = [];
+    for (let i = 0; i < 4; i++) {
+      await until(() => document.querySelector('.rating'));
+      practiceSeen.push(document.querySelector('.stimulus-image').getAttribute('src'));
+      assert(document.querySelector('.rating-panel').textContent.includes(`Practice ${i + 1} of 4`), 'Practice labeled');
+      press('1'); press('x'); press('a'); press('h'); await wait(20);
+      assert(document.querySelector('h2').textContent === 'Angry, neutral or happy?', 'Invalid classification keys ignored');
+      const key = ['b', 'n', 'm', 'b'][i];
+      press(key); await wait(20);
+      assert(document.querySelector('h2').textContent === `How ${EMOTIONS[key]} does the face appear?`, 'Practice question follows selected emotion');
+      assert(document.querySelector('.stimulus-image').getAttribute('src') === practiceSeen[i], 'Same face remains for rating');
+      press('8'); await wait(20);
+      assert(!!document.querySelector('.scale'), 'Invalid rating ignored');
+      press('4'); await wait(1020);
+    }
+    assert(new Set(practiceSeen).size === 4, 'Four distinct random practice images');
+    assert(jsPsych.data.get().filter({phase:'rating'}).values().length === 0, 'Practice excluded from main ratings');
     const seen = [], sizes = [], intervals = [];
     let lastAnswer = null;
     for (let i = 0; i < files.length; i++) {
@@ -36,6 +53,9 @@
       const rect = document.querySelector('.rating-panel').getBoundingClientRect();
       if (!(rect.top >= 0 && rect.bottom <= innerHeight + 1)) throw Error('Question/scale clipped');
       sizes.push(img.getBoundingClientRect().height);
+      const key = ['b', 'n', 'm'][i % 3];
+      press(key); await wait(20);
+      assert(document.querySelector('h2').textContent === `How ${EMOTIONS[key]} does the face appear?`, 'Main question follows selected emotion');
       if (i === 0) { press('8'); await wait(20); assert(!!document.querySelector('.rating'), 'Key 8 rejected'); }
       press(String(i % 7 + 1)); lastAnswer = performance.now();
       await wait(20);
@@ -43,10 +63,10 @@
       if (getComputedStyle(document.body).backgroundColor !== 'rgb(128, 128, 128)') throw Error('ITI is not gray');
       await wait(990);
     }
-    assert(new Set(seen).size === 165, 'All images shown once');
+    assert(new Set(seen).size === files.length, 'All images shown once');
     assert(intervals.every(ms => ms >= 1000), 'Within-block intervals at least 1000ms');
     assert(testWrites.length === 0 && saveAttempts === 0, 'No upload before explicit submission');
-    assert(jsPsych.data.get().filter({phase:'rating'}).values().length === 165, '165 actual keyboard responses recorded');
+    assert(jsPsych.data.get().filter({phase:'rating'}).values().length === files.length, 'All main keyboard responses recorded');
     await until(() => document.querySelector('#cloudresearch-id'));
     form = document.querySelector('form');
     const idInput = document.querySelector('#cloudresearch-id');
@@ -62,7 +82,7 @@
     document.querySelector('#retry-save').click();
     await until(() => document.querySelector('a[href*="/complete"]'));
     assert(saveAttempts === 2 && testWrites.length === 1, 'Save retry succeeds with one saved record');
-    assert(document.querySelector('a').href === 'https://connect.cloudresearch.com/participant/project/04018061B0/complete', 'Correct CloudResearch completion link');
+    assert(document.querySelector('a').href === 'https://connect.cloudresearch.com/participant/project/1EC415FF2C/complete', 'Correct CloudResearch completion link');
     const payload = testWrites[0].payload;
     assert(payload.recruitment.participantId === 'FINAL_TEST' && payload.recruitment.assignmentId === 'ASSIGN_TEST' && payload.recruitment.projectId === 'PROJECT_TEST', 'CloudResearch URL IDs preserved');
     assert(payload.recruitment.cloudresearch_id === 'ENTERED_TEST_ID', 'Typed ID saved separately and trimmed');
@@ -107,9 +127,10 @@
     const invalidCases = [
       p=>{delete p.recruitment.cloudresearch_id;}, p=>{p.recruitment.cloudresearch_id='   ';},
       p=>{p.consent.agreed=false;}, p=>{delete p.demographics.age;},
-      p=>{p.trials['001'].rating=8;}, p=>{delete p.trials['165'];},
+      p=>{p.trials['001'].rating=8;}, p=>{delete p.trials['166'];},
       p=>{p.trials['001'].filename='missing.jpeg';}, p=>{p.trials['001'].response_key='7'; p.trials['001'].rating=1;},
-      p=>{p.extra='unexpected';}, p=>{p.trials['001'].trial_number=2;}
+      p=>{p.trials['001'].selected_emotion='invalid';}, p=>{p.trials['001'].classification_key='x';},
+      p=>{delete p.trials['001'].classification_rt_ms;}, p=>{p.extra='unexpected';}, p=>{p.trials['001'].trial_number=2;}
     ];
     invalidCases.forEach((mutate,i)=>{const p=structuredClone(payload);mutate(p);assert(!valid(p),'Local rules reject malformed payload '+(i+1));});
     const summary = ['PASS', 'Block order: '+blockOrder.join(' → '), 'Viewport: '+innerWidth+'×'+innerHeight,

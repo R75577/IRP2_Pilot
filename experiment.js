@@ -1,9 +1,9 @@
 /* Fixed consent/demographics, then randomized blocks and keyboard ratings.
  * Study responses stay in memory until the participant submits at the end. */
 'use strict';
-const CLIENT_VERSION = 'attractiveness-v5';
-const CONSENT_VERSION = '2026-10-13-v3';
-const CLOUDRESEARCH_COMPLETION_URL = 'https://connect.cloudresearch.com/participant/project/04018061B0/complete';
+const CLIENT_VERSION = 'emotion-v6';
+const CONSENT_VERSION = '2026-10-20-v4';
+const CLOUDRESEARCH_COMPLETION_URL = 'https://connect.cloudresearch.com/participant/project/1EC415FF2C/complete';
 const DEMOGRAPHICS = {
   age: { label: 'Age', options: ['18-21', '22-30', '31-40', '41-60', '60+'] },
   gender: { label: 'Gender Identity', options: ['Male', 'Female'] },
@@ -62,25 +62,41 @@ if (!Array.isArray(files) || new Set(files).size !== files.length ||
 const blockOrder = jsPsych.randomization.shuffle(['Male', 'Female']);
 let trialNumber = 0;
 const ratingTrials = [];
-function makeImageTrial(block, filename, blockIndex, withinBlockIndex) {
+const EMOTIONS = { b: 'angry', n: 'neutral', m: 'happy' };
+function makeImageTrial(block, filename, blockIndex, withinBlockIndex, practice = false) {
   const imagePath = `all_images/${filename}`;
-  const trial = {
+  const metadata = { phase: practice ? 'practice' : 'rating',
+    trial_number: practice ? withinBlockIndex : ++trialNumber, block, block_index: blockIndex,
+    within_block_index: withinBlockIndex, image: imagePath, filename,
+    image_category: filename.split('_')[1] };
+  let classification;
+  const display = panel => `<div class="rating"><div class="image-wrap"><img class="stimulus-image" src="${imagePath}" alt="Face to rate"></div>
+    <div class="rating-panel">${practice ? `<p>Practice ${withinBlockIndex} of 4</p>` : ''}${panel}</div></div>`;
+  const categorize = {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: `<div class="rating"><div class="image-wrap"><img class="stimulus-image" src="${imagePath}" alt="Person to rate"></div>
-      <div class="rating-panel"><h2>How attractive is this person?</h2>
-      <div class="scale" aria-label="1 means not at all attractive; 7 means very attractive">
-      <span>1<small>Not at all attractive</small></span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7<small>Very attractive</small></span></div>
-      <p>Press a number key from 1 to 7.</p></div></div>`,
-    choices: ['1', '2', '3', '4', '5', '6', '7'],
-    response_ends_trial: true,
-    data: { phase: 'rating', trial_number: ++trialNumber, block, block_index: blockIndex,
-      within_block_index: withinBlockIndex, image: imagePath, filename,
-      image_category: filename.split('_')[1] },
+    stimulus: display('<h2 class="classification-question">Angry, neutral or happy?</h2><p class="classification-keys">Press <strong>B</strong> for ANGRY, <strong>N</strong> for NEUTRAL, or <strong>M</strong> for HAPPY.</p>'),
+    choices: ['b', 'n', 'm'], response_ends_trial: true,
+    data: { ...metadata, phase: practice ? 'practice_classification' : 'classification' },
     on_load: () => mode('rating-mode'),
-    on_finish: data => { data.rating = Number(data.response); }
+    on_finish: data => {
+      classification = { selected_emotion: EMOTIONS[data.response.toLowerCase()],
+        classification_key: data.response.toLowerCase(), classification_rt_ms: data.rt };
+      Object.assign(data, classification);
+    }
   };
-  ratingTrials.push(trial);
-  return trial;
+  const rating = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: () => display(`<h2>How ${classification.selected_emotion} does the face appear?</h2>
+      <div class="scale" aria-label="1 means not at all ${classification.selected_emotion}; 7 means very ${classification.selected_emotion}">
+      <span>1<small>Not at all ${classification.selected_emotion}</small></span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7<small>Very ${classification.selected_emotion}</small></span></div>
+      <p>Press a number key from 1 to 7.</p>`),
+    choices: ['1', '2', '3', '4', '5', '6', '7'], response_ends_trial: true,
+    data: metadata,
+    on_load: () => mode('rating-mode'),
+    on_finish: data => { data.rating = Number(data.response); Object.assign(data, classification); }
+  };
+  if (!practice) ratingTrials.push(rating);
+  return { timeline: [categorize, rating] };
 }
 function makeITI() {
   return { type: jsPsychHtmlKeyboardResponse, stimulus: '', choices: 'NO_KEYS',
@@ -88,11 +104,14 @@ function makeITI() {
     on_load: () => mode('iti-mode') };
 }
 const timeline = [consent, demographics,
-  page('<h2>Instructions</h2><p>You will view male and female images in two blocks.</p><p>For each image, answer <strong>How attractive is this person?</strong> by pressing a number key from <strong>1 (not at all attractive)</strong> to <strong>7 (very attractive)</strong>.</p><p>The image, question, and scale will appear together. After each response, a blank gray screen will appear for one second.</p><p>Please use a computer with a keyboard. You may stop before submitting by closing this page; your study responses will not be uploaded.</p>'),
+  page('<div class="study-instructions"><h2>Instructions</h2><p>For each image you are to determine <strong>whether the face is angry, neutral or happy</strong>. You will do so by using your keyboard. Press <strong>B</strong> for angry, <strong>N</strong> for neutral, <strong>M</strong> for happy.</p><p>You will also be asked to rate how strongly the face appears to show your selected emotion using a number key from <strong>1 (not at all)</strong> to <strong>7 (very)</strong>. The face stays visible with each question. After each completed rating, a blank gray screen will appear for one second.</p><p>You will first complete four practice trials. Practice responses are not included in your study results.</p><p>Please use a computer with a keyboard. You may stop before submitting by closing this page; your study responses will not be uploaded.</p></div>'),
   { type: jsPsychFullscreen, fullscreen_mode: true },
   { type: jsPsychPreload, images: files.map(file => `all_images/${file}`), continue_after_error: false, show_detailed_errors: true,
     error_message: 'Some images could not load. Please check your connection and reload the study.' }
 ];
+const practiceFiles = jsPsych.randomization.shuffle(files).slice(0, 4);
+practiceFiles.forEach((file, index) => timeline.push(
+  makeImageTrial(file.startsWith('M') ? 'Male' : 'Female', file, 0, index + 1, true), makeITI()));
 blockOrder.forEach((block, blockIndex) => {
   const prefix = block === 'Male' ? 'M' : 'F';
   const blockFiles = jsPsych.randomization.shuffle(files.filter(file => file.startsWith(prefix)));
@@ -127,7 +146,8 @@ async function finalSave() {
   if (!savePayload) {
     const rows = jsPsych.data.get().filter({ phase: 'rating' }).values();
     if (!consentRecord?.agreed || !demographicsRecord || !recruitment.cloudresearch_id?.trim() || rows.length !== files.length ||
-        rows.some(row => !Number.isInteger(row.rating) || row.rating < 1 || row.rating > 7)) {
+        rows.some(row => !Number.isInteger(row.rating) || row.rating < 1 || row.rating > 7 || EMOTIONS[row.classification_key] !== row.selected_emotion ||
+          !Number.isFinite(row.classification_rt_ms) || row.classification_rt_ms < 0)) {
       throw new Error('Incomplete study responses.');
     }
     savePayload = { client_version: CLIENT_VERSION, session_id: sessionId,
@@ -137,7 +157,8 @@ async function finalSave() {
       trials: Object.fromEntries(rows.map(row => [String(row.trial_number).padStart(3, '0'), {
         trial_number: row.trial_number, block: row.block, block_index: row.block_index,
         within_block_index: row.within_block_index, image: row.image, filename: row.filename,
-        image_category: row.image_category, rating: row.rating, response_key: row.response, rt_ms: row.rt
+        image_category: row.image_category, selected_emotion: row.selected_emotion,
+        classification_key: row.classification_key, classification_rt_ms: row.classification_rt_ms, rating: row.rating, response_key: row.response, rt_ms: row.rt
       }])) };
   }
   if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);

@@ -8,11 +8,13 @@ window.firebase={apps:[{}],auth:()=>({currentUser:{uid:'test-user'}}),database:O
   saveAttempts++; if(saveAttempts===1) throw new Error('Intentional test save failure');
   testWrites.push({path,payload});
 }})}),{ServerValue:{TIMESTAMP:1791800000000}})};
+const firstBlock = new URLSearchParams(location.search).get('first');
 const originalInit=window.initJsPsych;
 window.initJsPsych=options=>{
  const instance=originalInit(options), shuffle=instance.randomization.shuffle;
- instance.randomization.shuffle=items=>items.length===2 && items.includes('Male')
-   ? (new URLSearchParams(location.search).get('first')==='Female'?['Female','Male']:['Male','Female']) : shuffle(items);
+ Object.defineProperty(instance, 'randomization', { value: { ...instance.randomization,
+   shuffle: items=>items.length===2 && items.includes('Male')
+     ? (firstBlock==='Female'?['Female','Male']:['Male','Female']) : shuffle(items) } });
  return instance;
 };
 </script><script src="experiment.js"></script><script src="tests/final-check.js"></script></body></html>
